@@ -22,4 +22,5 @@ try:
                 # Change direction:
                 indentIncreasing = True
 except KeyboardInterrupt:
+    print('You Closed the program by pressing Ctrl+C')
     sys.exit()
