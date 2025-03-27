@@ -1,5 +1,7 @@
 def isPhoneNumber(text):
-
+    if len(text) != 12:
+        return False
+    
     for i in range (0, 12):
 
         if i == 3 or i == 7:
