@@ -67,3 +67,34 @@ print(mo.group()) # <To serve man>
 greedyRegex = re.compile(r'<.*>')
 mo = greedyRegex.search('<To serve man> for dinner.>')
 print(mo.group()) # goes on an on until last stop
+
+
+# New Line Accepted
+newlineRegex = re.compile('<.*>', re.DOTALL)
+mo = newlineRegex.search('<Hello Honey\nI am on new line!> it is not included.')
+print(mo.group())
+
+# Case Insensitive Matching
+robocop = re.compile(r'robocop', re.I) # or re.IGNORECASE
+rc = robocop.search('RoboCop is part man, part Machine, all Cop.')
+print(rc.group())
+
+# string substituting (replacement) using regex
+# replace Agent + (1 or more characters available until space)
+namesRegex = re.compile(r'Agent \w+')
+# if used (r'Agent' \w+?') then only single character will 
+# be replaced after Alice, because it will become non greedy
+print(namesRegex.sub('CENSORED', 'Agent Alice gave the secret documents to Agent Bob.'))
+
+# secret CENSORING 
+agentNamesRegex = re.compile(r'Agent (\w)\w*')
+print(agentNamesRegex.sub(r'\1****', 'Agent Alice told Agent Carol that Agent \
+Eve knew Agent Bob was a double agent.'))
+
+# combination of re.IGNORECASE and re.DOTALL
+someRegexValue = re.compile('foo', re.IGNORECASE | re.DOTALL | re.VERBOSE)
+result = someRegexValue.search('''
+    So there we go foO # this is line 1
+    Yeah how are you?
+''')
+print(result.group())
