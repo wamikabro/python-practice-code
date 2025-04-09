@@ -1,13 +1,13 @@
-# extendedMultiClipboard.pyw - Saves, loads and deletes the pieces of text to and from the clipboard.
-# extendedMultiClipboard save <keyword> - to save what's in clipboard with given keyword
-# extendedMultiClipboard list - to get the list of all the available keywords copied to the clipboard
-# extendedMultiClipboard <keyword> - to get the value saved on the given keyword copied to the clipboard
-# extendedMultiClipboard delete <keyword> - to delete the given keyword from the list
-# extendedMultiClipboard deleteAll - to delete all the stored keywords from the list
+# emcb.pyw - Saves, loads and deletes the pieces of text to and from the clipboard.
+# emcb save <keyword> - to save what's in clipboard with given keyword
+# emcb list - to get the list of all the available keywords copied to the clipboard
+# emcb <keyword> - to get the value saved on the given keyword copied to the clipboard
+# emcb delete <keyword> - to delete the given keyword from the list
+# emcb deleteAll - to delete all the stored keywords from the list
 
 import shelve, pyperclip, sys
 
-mcbShelf = shelve.open('extendedMultiClipboard') # mcb = multi-clipboard
+mcbShelf = shelve.open('emcb') # mcb = multi-clipboard
 
 
 if len(sys.argv) == 3:
