@@ -18,7 +18,10 @@ soup = bs4.BeautifulSoup(res.text, 'html.parser')
 all_matches = soup.select('.prc-Link-Link-85e08')
 
 # Step 2: Filter only those that have exactly that class and no others
+<<<<<<< HEAD
 # If less matches found than 10, then less will be stored
+=======
+>>>>>>> bd0fc4678860d02818d54bb8dba211496e2d2514
 results = [el for el in all_matches if el.get('class') == ['prc-Link-Link-85e08']][:10]
 
 
