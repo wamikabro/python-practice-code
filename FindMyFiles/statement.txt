@@ -1,0 +1,16 @@
+Find My File Program
+
+1. Ask the User Where to search for the type of Files? (What Folder/Drive)
+2. Ask the User Where to Paste all the files? 
+3. Ask the user, what type of files to find? Show the list e.g. mp3, mp4 
+(allow multiple entries with space)
+i. in the given location, folder will be created, and for different type of files, a subfolder will be created 
+4. ask the user if the files should be cut or copied
+i. if user says Cut, show the WARNING 
+5. move/copy the files from their locations to the new location 
+6. In the main folder, create an Excel file containing all the details 
+i. name of the file
+ii.where the file was taken from
+iii. new location of the file
+iv. size of the file
+v. If there are multiple types of file, make multiple worksheets inside workbook for each type named with it
