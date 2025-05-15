@@ -7,7 +7,11 @@ Find My File Program
 i. in the given location, folder will be created, and for different type of files, a subfolder will be created 
 4. ask the user if the files should be cut or copied
 i. if user says Cut, show the WARNING 
+
 5. move/copy the files from their locations to the new location 
+(Make sure the destination folder has enough space for that go through all the files first just calculating their whole size and possibily making an Iterator)
+(If destination Disk has enough space, then move or copy the files as told)
+(If destination Disk is same as Source disk and user has asked to Move, then don't worry about these calculations, simply move directly)
 6. In the main folder, create an Excel file containing all the details 
 i. name of the file
 ii.where the file was taken from
