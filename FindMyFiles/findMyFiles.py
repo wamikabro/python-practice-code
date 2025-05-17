@@ -59,13 +59,17 @@ while True:
 
 # Note: Use Iterators to keep track of file sizes, and know what to yield based on file sizes
 # Define generator and counter logic before your main if-block
-def scanAndCollectForMove(sourcePath, fileType, freeDriveSpaceInGB):
+def scanAndCollectForMove(sourcePath, fileType):
+    # count all files, matched files, possible to move, impossible to move
     counters = {
         'numberOfFoundFiles': 0,
         'numberOfMatchedFiles': 0,
         'potentialFilesNo': 0,
         'rejectedFilesNo': 0
     }
+
+    # Find free drive space
+    freeDriveSpaceInGB = shutil.disk_usage(sourcePath.drive).free / (1024 ** 3)
 
     def generator():
         for foldername, subfolders, filenames in os.walk(sourcePath):
@@ -80,16 +84,17 @@ def scanAndCollectForMove(sourcePath, fileType, freeDriveSpaceInGB):
                         yield filePath
                     elif freeDriveSpaceInGB < fileSizeInGB:
                         counters['rejectedFilesNo'] += 1
+    # returning calling functiopn to get generator object, that's how they work                    
+    # returning counters, so counters are incremented when generator used
+    # Still not memory efficient!
     return generator(), counters
 
 
 # If Source and Destination Drive is same, and user wants to Move: 
 if sourcePath.drive == destinationPath.drive and copyOrMove == 'move':
     
-    freeDriveSpaceInGB = shutil.disk_usage(sourcePath.drive).free / (1024 ** 3)
-    
     # Use your generator-based function
-    potentialFilesGen, stats = scanAndCollectForMove(sourcePath, fileTypes[0], freeDriveSpaceInGB)
+    potentialFilesGen, stats = scanAndCollectForMove(sourcePath, fileTypes[0])
     
     # Convert generator to list so we can reuse it after asking user
     potentialFiles = list(potentialFilesGen)
