@@ -58,42 +58,63 @@ while True:
         print(ex)
 
 # Note: Use Iterators to keep track of file sizes, and know what to yield based on file sizes
+# Define generator and counter logic before your main if-block
+def scanAndCollectForMove(sourcePath, fileType, freeDriveSpaceInGB):
+    counters = {
+        'numberOfFoundFiles': 0,
+        'numberOfMatchedFiles': 0,
+        'potentialFilesNo': 0,
+        'rejectedFilesNo': 0
+    }
+
+    def generator():
+        for foldername, subfolders, filenames in os.walk(sourcePath):
+            for filename in filenames:
+                counters['numberOfFoundFiles'] += 1 
+                filePath = Path(foldername) / filename
+                fileSizeInGB = os.path.getsize(filePath) / (1024 ** 3)
+                if Path(filename).suffix[1:] == fileType:
+                    counters['numberOfMatchedFiles'] += 1
+                    if freeDriveSpaceInGB >= fileSizeInGB: 
+                        counters['potentialFilesNo'] += 1
+                        yield filePath
+                    elif freeDriveSpaceInGB < fileSizeInGB:
+                        counters['rejectedFilesNo'] += 1
+    return generator(), counters
+
 
 # If Source and Destination Drive is same, and user wants to Move: 
 if sourcePath.drive == destinationPath.drive and copyOrMove == 'move':
-    numberOfFoundFiles = 0
-    numberOfMatchedFiles = 0
-    potentialFilesNo = 0
-    rejectedFilesNo = 0
     
-    # First go through all the files ONE BY ONE just checking that drive has enough space 
     freeDriveSpaceInGB = shutil.disk_usage(sourcePath.drive).free / (1024 ** 3)
-    for foldername, subfolders, filenames in os.walk(sourcePath):
-        for filename in filenames:
-            numberOfFoundFiles += 1 
-            fileSizeInGB = os.path.getsize(Path(foldername) / filename) / (1024 ** 3)
-            # if file is of type that we're trying to find
-            # and file is lesser or equal in to the available size of drive
-            if Path(filename).suffix[1:] == fileTypes[0]:
-                numberOfMatchedFiles += 1
-                if freeDriveSpaceInGB >= fileSizeInGB: 
-                    # to hold that single file copy by checking size of the file and remaining storage in drive
-                    potentialFilesNo += 1
-                elif freeDriveSpaceInGB < fileSizeInGB:
-                    # count the files that can not be moved because they're heavier than the space available
-                    rejectedFilesNo += 1
+    
+    # Use your generator-based function
+    potentialFilesGen, stats = scanAndCollectForMove(sourcePath, fileTypes[0], freeDriveSpaceInGB)
+    
+    # Convert generator to list so we can reuse it after asking user
+    potentialFiles = list(potentialFilesGen)
+
+    # Unpack counters
+    numberOfFoundFiles = stats['numberOfFoundFiles']
+    numberOfMatchedFiles = stats['numberOfMatchedFiles']
+    potentialFilesNo = stats['potentialFilesNo']
+    rejectedFilesNo = stats['rejectedFilesNo']
+
     print(f'''------------------------------------
 {numberOfMatchedFiles}/{numberOfFoundFiles} are {fileTypes[0]} files.
 {potentialFilesNo}/{numberOfMatchedFiles} can be Moved, while 
 {rejectedFilesNo}/{numberOfMatchedFiles} are over sized hens rejected.
-------------------------------------''')                
-    # and ask the user if they wanna proceed with other files or cancel
+------------------------------------''')
+
     yesOrNo = pyip.inputYesNo('Do you want to continue the Moving process (yes/no): ')
     if yesOrNo == 'yes':
-        #TODO: Move 
         print('Moving...')
+        for filePath in potentialFiles:
+            #shutil.move(filePath, destinationPath / filePath.name)
+            print(f'Moveding: {filePath.name}')
     else:
         print('You chose not to Move. See You.')
+
         
 
 #TODO: Else do    
