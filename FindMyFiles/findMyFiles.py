@@ -59,28 +59,44 @@ while True:
 
 # Note: Use Iterators to keep track of file sizes, and know what to yield based on file sizes
 
-#TODO: If Source and Destination Drive is same, and user wants to Move, 
-if sourcePath.drive == destinationPath.drive:
-    heavierFilesNo = 0
+# If Source and Destination Drive is same, and user wants to Move: 
+if sourcePath.drive == destinationPath.drive and copyOrMove == 'move':
+    numberOfFoundFiles = 0
+    numberOfMatchedFiles = 0
+    potentialFilesNo = 0
+    rejectedFilesNo = 0
+    
     # First go through all the files ONE BY ONE just checking that drive has enough space 
     freeDriveSpaceInGB = shutil.disk_usage(sourcePath.drive).free / (1024 ** 3)
     for foldername, subfolders, filenames in os.walk(sourcePath):
-        for filename in filenames: 
+        for filename in filenames:
+            numberOfFoundFiles += 1 
             fileSizeInGB = os.path.getsize(Path(foldername) / filename) / (1024 ** 3)
             # if file is of type that we're trying to find
             # and file is lesser or equal in to the available size of drive
+            if Path(filename).suffix[1:] == fileTypes[0]:
+                numberOfMatchedFiles += 1
+                if freeDriveSpaceInGB >= fileSizeInGB: 
+                    # to hold that single file copy by checking size of the file and remaining storage in drive
+                    potentialFilesNo += 1
+                elif freeDriveSpaceInGB < fileSizeInGB:
+                    # count the files that can not be moved because they're heavier than the space available
+                    rejectedFilesNo += 1
+    print(f'''------------------------------------
+{numberOfMatchedFiles}/{numberOfFoundFiles} are {fileTypes[0]} files.
+{potentialFilesNo}/{numberOfMatchedFiles} can be Moved, while 
+{rejectedFilesNo}/{numberOfMatchedFiles} are over sized hens rejected.
+------------------------------------''')                
+    # and ask the user if they wanna proceed with other files or cancel
+    yesOrNo = pyip.inputYesNo('Do you want to continue the Moving process (yes/no): ')
+    if yesOrNo == 'yes':
+        #TODO: Move 
+        print('Moving...')
+    else:
+        print('You chose not to Move. See You.')
         
-            if Path(filename).suffix[1:] == fileTypes[0] and freeDriveSpaceInGB >= fileSizeInGB: 
-                # to hold that single file copy by checking size of the file and remaining storage in drive
-                print(filename)
-            else:
-                # count the files that can not be moved because they're heavier than the space available
-                heavierFilesNo += 1
-    print(heavierFilesNo)
-            
-            # and ask the user if they wanna proceed with other files or cancel
 
-#TODO: Else do
+#TODO: Else do    
 # Calculate sum of all the file sizes, and check if the drive has capacity to hold all those files
 # during that create an iterator that store list of file sizes and destinations, 
 # If the destination drive has no enough capacity, then look how much capacity it has
