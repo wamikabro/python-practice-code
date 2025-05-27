@@ -27,7 +27,7 @@ while True:
             (e.g. type 'D:/' or 'D:/Folder/SubFolder')
             note: please must add : after drive letter or else it will be mistaken to folder
             :''')))
-    
+        
         if not Path.exists(sourcePath):
             raise FileNotFoundError('\nError: Folder/Drive not found. Try Again.\n')
     
@@ -59,7 +59,7 @@ while True:
 
 # Note: Use Iterators to keep track of file sizes, and know what to yield based on file sizes
 # Define generator and counter logic before your main if-block
-def scanAndCollectForMove(sourcePath, fileType):
+def scanAndCollectForMove(sourcePath, fileType): # In this case, sourcePath and destinationPath are same
     # count all files, matched files, possible to move, impossible to move
     counters = {
         'numberOfFoundFiles': 0,
@@ -90,6 +90,32 @@ def scanAndCollectForMove(sourcePath, fileType):
     return generator(), counters
 
 
+# Generator function for Different Destination to determine how many files can be moved or copied
+def scanAndCollectForDifferentDestination(sourcePath, destinationPath, fileType):
+    counters = {
+        'numberOfFoundFiles': 0,
+        'numberOfMatchedFiles': 0,
+        'sumOfFilesSize': 0 # bytes
+    }
+
+    # Find free drive space in Destination drive
+    freeDriveSpaceInGB = shutil.disk_usage(destinationPath.drive).free / (1024 ** 3)
+
+    def generator():
+        for foldername, subfolders, filenames in os.walk(sourcePath):
+            for filename in filenames:
+                counters['numberOfFoundFiles'] += 1
+                file_path = Path(foldername) / filename
+                if file_path.suffix[1:] == fileType and file_path.is_file():
+                    file_size = os.path.getsize(file_path)
+                    counters['sumOfFilesSize'] += file_size
+                    counters['numberOfMatchedFiles'] += 1
+                    yield (file_path, file_size)
+
+    return  generator(), counters, freeDriveSpaceInGB
+
+
+
 # If Source and Destination Drive is same, and user wants to Move: 
 if sourcePath.drive == destinationPath.drive and copyOrMove == 'move':
     
@@ -115,20 +141,40 @@ if sourcePath.drive == destinationPath.drive and copyOrMove == 'move':
     if yesOrNo == 'yes':
         print('Moving...')
         for filePath in potentialFiles:
-            #shutil.move(filePath, destinationPath / filePath.name)
-            print(f'Moveding: {filePath.name}')
+            # TODO: Create folder, following some naming scheme, checking if name already exists etc
+            # shutil.move(filePath, destinationPath / filePath.name)
+            print(f'Moving: {filePath.name}')
     else:
         print('You chose not to Move. See You.')
 
-        
 
-#TODO: Else do    
+#TODO: Else if destination is different for Move or it's Copy, then do    
 # Calculate sum of all the file sizes, and check if the drive has capacity to hold all those files
-# during that create an iterator that store list of file sizes and destinations, 
-# If the destination drive has no enough capacity, then look how much capacity it has
-# based on that tell the user They can't move/copy all files, 
-# But they can move/copy if they want to move/copy smallest files, ## out of ## files will be moved/copied
-# If they want to move/copy large files, ## out of ## files will be moved/copied
-# if they want to cancel it just tap cancel
+else:
+    gen, counters, freeGB = scanAndCollectForDifferentDestination(sourcePath, destinationPath, fileTypes[0])
+
+    # Force the generator to run (consume all items)
+    file_list = list(gen)
+
+    foundFiles = counters['numberOfFoundFiles']
+    matchedFiles = counters['numberOfMatchedFiles']
+    sumOfFilesSizeInGB = counters['sumOfFilesSize'] / (1024 ** 3)
+
+    # Print summary
+    print(f"🔍 Total files scanned: {foundFiles}")
+    print(f"✅ Matched files (.{fileTypes[0]}): {matchedFiles}")
+    print(f"💾 Total size of matched files: {sumOfFilesSizeInGB:.2f} GB")
+    print(f"📂 Free space on destination drive: {freeGB:.2f} GB")
 
 
+    #if sumOfFilesSizeInGB > freeDriveSpaceInGB:
+        #print("❌ Not enough space to", copyOrMove)
+        
+        # If the destination drive has no enough capacity, then look how much capacity it has
+        # based on that tell the user They can't move/copy all files, 
+        # But they can move/copy if they want to move/copy smallest files, ## out of ## files will be moved/copied
+        # If they want to move/copy large files, ## out of ## files will be moved/copied
+        # if they want to cancel it just tap cancel
+    #else:
+        #TODO: copy or move as suggested
+        #pass
