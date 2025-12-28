@@ -20,3 +20,10 @@ print("Unzipped sequence 2:", unzipped_list2)
 # Output: Unzipped sequence 1: ['a', 'b', 'c']
 # Output: Unzipped sequence 2: [1, 2, 3]
 # Note: The unzipping step works because we first converted the zipped object to a list of tuples.
+
+# if we combine 2 sequences of different lengths
+sequence3 = ['x', 'y']
+zipped_diff_length = zip(sequence1, sequence3)
+print("Zipped with different lengths:", list(zipped_diff_length))
+# Output: Zipped with different lengths: [('a', 'x'), ('b', 'y')]
+# Note: The zip function stops creating pairs when the shortest input iterable is exhausted.
